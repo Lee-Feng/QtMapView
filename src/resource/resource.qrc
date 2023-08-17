@@ -1,0 +1,44 @@
+<RCC>
+    <qresource prefix="/resource">
+        <file>camera_pressed.png</file>
+        <file>camera_released.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>flash_opened.png</file>
+        <file>flash_closed.png</file>
+        <file>flash_auto.png</file>
+        <file>video_pressed.png</file>
+        <file>video_release.png</file>
+        <file>red_pie.png</file>
+        <file>border_last_picture_normal.png</file>
+        <file>border_last_picture_press.png</file>
+        <file>border_last_picture_lite_default_normal.png</file>
+        <file>border_last_picture_lite_default_press.png</file>
+        <file>all_photos.png</file>
+        <file>all_photos_press.png</file>
+        <file>ic_zoom_in.png</file>
+        <file>ic_zoom_in_dark.png</file>
+        <file>ic_zoom_out.png</file>
+        <file>ic_zoom_out_dark.png</file>
+        <file>ic_btn_pause_in_video.png</file>
+        <file>ic_btn_resume_in_video.png</file>
+        <file>ic_flg_vedio.png</file>
+        <file>location.png</file>
+        <file>setting.png</file>
+        <file>splash_image.png</file>
+        <file>ic_folder_open_black_48dp.png</file>
+        <file>ic_insert_drive_file_black_48dp.png</file>
+        <file>fonts/UbuntuMono-Regular.ttf</file>
+        <file>logo.png</file>
+        <file>about.png</file>
+        <file>takeVideo.png</file>
+        <file>takePhoto.png</file>
+        <file>aim.png</file>
+        <file>speed.png</file>
+        <file>autoclip.png</file>
+        <file>laser.png</file>
+        <file>laser_on.png</file>
+        <file>sub.png</file>
+        <file>add.png</file>
+    </qresource>
+</RCC>

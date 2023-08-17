@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/stylecss">
+        <file>stylecss/blue.css</file>
+    </qresource>
+    <qresource prefix="/styleimgs">
+        <file>stylecss/imgs/add-line_horizontal.png</file>
+        <file>stylecss/imgs/add-line_vertical.png</file>
+        <file>stylecss/imgs/array_down.png</file>
+        <file>stylecss/imgs/checkbox_checked.png</file>
+        <file>stylecss/imgs/checkbox_unchecked.png</file>
+        <file>stylecss/imgs/radio_normal.png</file>
+        <file>stylecss/imgs/radio_selected.png</file>
+        <file>stylecss/imgs/sub-line_horizontal.png</file>
+        <file>stylecss/imgs/sub-line_vertical.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>stylecss/imgs/finshed.png</file>
+        <file>stylecss/imgs/init.png</file>
+        <file>stylecss/imgs/increase.bmp</file>
+        <file>stylecss/imgs/reduce.bmp</file>
+        <file>stylecss/imgs/tools.bmp</file>
+        <file>stylecss/imgs/symbol_reduce.png</file>
+        <file>stylecss/imgs/symbol_vertical.png</file>
+        <file>stylecss/imgs/Down.png</file>
+        <file>stylecss/imgs/Up.png</file>
+    </qresource>
+</RCC>

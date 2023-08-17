@@ -1,0 +1,27 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# office
+~$*
+
+# 编译文件
+build/
+bin/log/
+*.pro.user
+*.pro.user*
+bin/*
+
+lib/*
+
+minidump*.dmp
