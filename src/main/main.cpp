@@ -72,9 +72,7 @@ int main(int argc,char* argv[])
     QTextCodec* codec = QTextCodec::codecForName("System");
     QTextCodec::setCodecForLocale(codec);
 
-
-    MainWindow mainwidow;
-    mainwidow.show();
-
+    MainWindow window;
+    window.show();
     return app.exec();
 }

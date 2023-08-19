@@ -68,7 +68,7 @@
 CONFIG += build_all
 
 # x86 还是 x64架构
-ARCH = x86
+ARCH = x64
 contains(QMAKE_HOST.arch, x86_64):{
     ARCH = x64
 }

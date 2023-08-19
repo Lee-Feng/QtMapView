@@ -6,6 +6,7 @@
 #include <QCloseEvent>
 #include <QTimer>
 #include <Utiles/version.hpp>
+#include <QtMapView/QtMapView.hpp>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -21,6 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug() << QStringLiteral("版本:%1").arg(version);
     setWindowTitle(QString("%1 V%2").arg(windowTitle()).arg(version));
 
+    QtMapView* map = new QtMapView();
+    map->setMap(QStringLiteral("maps/中华人民共和国.json"));
+    setCentralWidget(map);
 }
 
 MainWindow::~MainWindow()

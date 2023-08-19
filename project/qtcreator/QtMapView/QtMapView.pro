@@ -38,10 +38,11 @@
 #
 #-------------------------------------------------
 #步骤1：设置版本号#version
-VERSION = 1.0.0.20220113
+VERSION = 1.0.0
+# 1. 激光清障仪控制接口
 
+QT += location location-private
 #步骤2.1：添加自定义的CONFIG项
-#CONFIG += console
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -50,7 +51,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 #如果项目依赖了非自己代码编译的库那么库可以放在$PT/3rd目录。然后通过LIB_3RD_DIRS指定。
 #如果项目依赖了非自己代码编译的库那么库可以放在$PT/../lib目录。然后通过LIB_DIRS指定。
 #
-LIB_3RD_DIRS = AsyncInvoker
+LIB_3RD_DIRS =
 #LIB_SRC_DIRS =
 LIB_DIRS =
 
@@ -60,6 +61,7 @@ LIB_DIRS =
 
 #步骤5：预定义宏
 # defInitions, Add declaration for build dll which will be used in config.hpp
+DEFINES += LF_QMAPVIEW_BUILD_DLL
 DEFINES += VERSION_STR=$$VERSION
 
 #步骤6：包含工程模板文件。
@@ -74,7 +76,7 @@ DEFINES += VERSION_STR=$$VERSION
 #         build_cplugin.pri     普通classloader插件工程
 #         build_cqtplugin.pri   QT classloader插件工程
 #根据不同的工程，使用include (../pub_pris/build_xxx.pri)包含对应的pri文件即可
-include (../pub_pris/build_qtapp.pri)
+include (../pub_pris/build_qtdynlib.pri)
 
 #------------------依赖库--------------------------
 #
@@ -92,10 +94,9 @@ include (../pub_pris/build_qtapp.pri)
 #                                VAR_3RDLIBS += test3rdlib_DD4
 #                          }
 # 设置完依赖的库变量之后，包含libs_inc.pri文件include (../pub_pris/libs_inc.pri)
-VAR_DEPLIBS = AsyncInvoker QtMapView
-VAR_3RDLIBS = #avcodec avformat avfilter avdevice avutil postproc swresample swscale
+VAR_DEPLIBS =
+VAR_3RDLIBS =
 VAR_3RDLIBS_DEBUG_END_WITH_D =
-
 
 #manage dependences. (notice:do not change this line below)
 include (../pub_pris/libs_inc.pri)
@@ -112,11 +113,8 @@ include (../pub_pris/libs_inc.pri)
 
 #include(../pub_pris/deploy_to_publib.pri)
 
-message($$INCLUDEPATH)
-message($$LIBS)
-message($$DEFINES)
-message($$CONFIG)
-
 #项目源代码
-include($$PTVAR_SRC/main/src.pri)
-RESOURCES += $$PTVAR_SRC/res/resource.qrc
+
+HEADERS += $$PTVAR_INC/QtMapView/QtMapViewConfig.hpp
+HEADERS += $$PTVAR_INC/QtMapView/QtMapView.hpp
+SOURCES += $$PTVAR_SRC/QtMapView/QtMapView.cpp
