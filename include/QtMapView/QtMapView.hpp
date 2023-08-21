@@ -2,7 +2,6 @@
 
 #include <QObject>
 #include <QVariantMap>
-#include <QImage>
 #include <QWidget>
 #include <QtMapView/QtMapViewConfig.hpp>
 
@@ -12,11 +11,6 @@
 class LF_QMAPVIEW_DECL QtMapView : public QWidget
 {
     Q_OBJECT
-
-//    Q_PROPERTY(QString version READ getVersionString)
-//    Q_PROPERTY(int versionValue READ getVersionCode)
-//    Q_PROPERTY(QVariantMap devInfo READ getDevInfo NOTIFY devInfoChanged)
-//    Q_PROPERTY(QVariantMap location READ getLocation NOTIFY locationChanged)
 
 public:
     enum FillMode{
@@ -65,6 +59,16 @@ public:
         qreal lonSize() const{
             return qAbs(maxLon - minLon);
         }
+    };
+
+    /**
+     * @brief The Node class
+     */
+    class Node{
+    public:
+        QWidget* view = NULL;
+        QString name;
+        QPointF pos; /// x是经度、y是纬度
     };
 
 public:
@@ -197,6 +201,51 @@ public:
      */
     virtual void setFitScaleEnabled(bool enable);
 
+public:
+    /**
+     * @brief convertToViewPos
+     * 把geo位置转为当前的UI位置，如果有拖拽、缩放等对应位置应该重新计算
+     * @param geo x经度、y纬度
+     * @return
+     */
+    QPointF convertToViewPos(QPointF geo);
+
+    /**
+     * @brief convertToGeoPos
+     * 获取当前view上的位置对应的geo位置，如果有拖拽、缩放等对应位置应该重新计算
+     * @param os
+     * @return geo x经度、y纬度
+     */
+    QPointF convertToGeoPos(QPointF p);
+
+    /**
+     * @brief addNode
+     * 添加一个Node
+     * @param node
+     */
+    void addNode(Node node);
+    void addNode(QWidget* node,QPointF geoPos);
+
+    /**
+     * @brief removeNode
+     * 删除Node
+     * @param nodeView
+     */
+    void removeNode(QWidget* nodeView);
+
+    /**
+     * @brief contains
+     * @param nodeView
+     * @return
+     */
+    bool contains(QWidget* nodeView);
+
+    /**
+     * @brief getNode
+     * @param nodeView
+     * @return 如果不存在将返回默认item，view是NULL
+     */
+    Node getNode(QWidget* nodeView);
 protected:
     virtual void paintEvent(QPaintEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);

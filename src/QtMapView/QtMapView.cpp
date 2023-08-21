@@ -7,7 +7,9 @@
 #include <QGeoPath>
 #include <QGeoPolygon>
 #include <QMouseEvent>
+#include <QList>
 
+static const qreal lant_move = 60;
 class QtMapView::Impl{
 public:
     QString m_file;
@@ -19,6 +21,10 @@ public:
     bool m_mouseScrollScaleEnabled = true;
     QPointF m_mouseLastPos;
     bool m_draging = false;
+    QPointF m_mousCurrentPos;
+
+    /// 元素信息
+    QMap<QWidget*,QtMapView::Node> m_viewnodes;
 
 public:
     Qt::Alignment m_align = Qt::AlignCenter;
@@ -34,19 +40,39 @@ public:
     qreal m_max_abs_scale = -1;
     qreal m_min_abs_scale = -1;
 
+    Impl(QtMapView* pthis):m_pthis(pthis){
+    }
+
     GeoRect getViewGeoRect() const{
         return m_geoRect;
     }
 
-    QPointF geoPos2Point(QGeoCoordinate c) const{
-        /// 上下颠倒一下
-        return QPointF(c.longitude(),60-c.latitude());
+    QPointF geoTrasToShow(QPointF geo) const{
+        //return QPointF(geo.x(),lant_move-geo.y());
+        return m_pthis->convertToViewPos(geo);
     }
 
+    QGeoCoordinate geoMove(const QGeoCoordinate& p,QPointF move){
+        return QGeoCoordinate(p.latitude() + move.y(), p.longitude() + move.x());
+    }
+
+    void layoutNodePos(){
+        foreach(auto k,m_viewnodes.keys()){
+            QWidget* ui = m_viewnodes[k].view;
+            if(ui != NULL){
+                QPoint centerMove = QPoint(ui->geometry().width()/2, ui->geometry().height()/2);
+                ui->move(geoTrasToShow(m_viewnodes[k].pos).toPoint() - centerMove);
+            }
+        }
+    }
+
+    QPointF geoPos2Point(QGeoCoordinate c) const{
+        return geoTrasToShow(QPointF(c.longitude(),c.latitude()));
+    }
     void drawGeoPoint(QPainter& p,QGeoCircle c){
         p.drawEllipse(geoPos2Point(c.center()),c.radius(),c.radius());
     }
-    void drawGeoPath(QPainter& p,QList<QGeoCoordinate> c){
+    void drawGeoPath(QPainter& p,QList<QGeoCoordinate> c,QVariantMap properties){
         if(c.size() < 2){
             qWarning() << QStringLiteral("路径中的点数小于2个");
             return;
@@ -58,27 +84,55 @@ public:
         p.drawPath(path);
     }
 
-    void drawGeoLine(QPainter& p,QGeoPath c){
+    void drawGeoLine(QPainter& p,QGeoPath c,QVariantMap properties){
         QList<QGeoCoordinate> points = c.path();
-        drawGeoPath(p,points);
+        drawGeoPath(p,points,properties);
     }
-    void drawGeoPolygon(QPainter& p,QGeoPolygon c){
+    void drawGeoPolygon(QPainter& p,QGeoPolygon c,QVariantMap properties){
         QList<QGeoCoordinate> points = c.path();
-        drawGeoPath(p,points);
+        drawGeoPath(p,points,properties);
+        QString name = properties["name"].toString();
+        if(!name.isEmpty()){
+            QGeoRectangle rect = c.boundingGeoRectangle();
+            QGeoCoordinate tl = rect.topLeft();
+            QGeoCoordinate dr = rect.bottomRight();
+            if(name.startsWith(QStringLiteral("内蒙古"))){
+                tl = geoMove(tl,QPointF(0,-3));
+                dr = geoMove(dr,QPointF(0,-3));
+            } else if(name.startsWith(QStringLiteral("甘肃"))){
+                tl = geoMove(tl,QPointF(2,0));
+                dr = geoMove(dr,QPointF(2,0));
+            } else if(name.startsWith(QStringLiteral("陕西"))){
+                tl = geoMove(tl,QPointF(2,0));
+                dr = geoMove(dr,QPointF(2,0));
+            } else if(name.startsWith(QStringLiteral("河北"))){
+                tl = geoMove(tl,QPointF(-1,-1));
+                dr = geoMove(dr,QPointF(-1,-1));
+            } else if(name.startsWith(QStringLiteral("辽宁"))){
+                tl = geoMove(tl,QPointF(1,1));
+                dr = geoMove(dr,QPointF(1,1));
+            } else if(name.startsWith(QStringLiteral("黑龙江"))){
+                tl = geoMove(tl,QPointF(0,3));
+                dr = geoMove(dr,QPointF(0,3));
+            }
+            QRect drawRect = QRect(geoPos2Point(tl).toPoint(),geoPos2Point(dr).toPoint());
+            p.drawText(drawRect,Qt::AlignCenter, properties["name"].toString());
+        }
     }
-    void drawGeoFeatureData(QPainter& p,int level,QVariantMap data){
+    void drawGeoFeatureData(QPainter& p,int level,QVariantMap data,QVariantMap properties){
         QString shape = data["type"].toString();
         if(shape.compare("Point") == 0){
             drawGeoPoint(p,data["data"].value<QGeoCircle>());
         } else if(shape.compare("LineString") == 0){
-            drawGeoLine(p,data["data"].value<QGeoPath>());
+            drawGeoLine(p,data["data"].value<QGeoPath>(),properties.isEmpty() ? data["properties"].toMap() : properties);
         } else if(shape.compare("Polygon") == 0){
-            drawGeoPolygon(p,data["data"].value<QGeoPolygon>());
+            drawGeoPolygon(p,data["data"].value<QGeoPolygon>(),properties.isEmpty() ? data["properties"].toMap() : properties);
         } else if(shape.startsWith("Multi")){
             QVariantList multShapes = data["data"].toList();
+            QVariantMap pro = data["properties"].toMap();
             foreach(auto s,multShapes){
                 QVariantMap one = s.toMap();
-                drawGeoFeatureData(p,level,one);
+                drawGeoFeatureData(p,level,one,pro);
             }
         } else {
             qWarning() << QStringLiteral("不支持的geoJson图形类型[%1]").arg(shape);
@@ -87,7 +141,7 @@ public:
     void drawGeoJsonFeature(QPainter& p,QVariantMap featureCollection){
         QVariantList datas = featureCollection["data"].toList();
         foreach(auto d,datas){
-            drawGeoFeatureData(p,0,d.toMap());
+            drawGeoFeatureData(p,0,d.toMap(),QVariantMap());
         }
     }
     void drawGeoJson(QPainter& p,QVariantList geoJson){
@@ -130,11 +184,15 @@ public:
         /// 中心点的位移就是需要回动的地方
         move = viewCenter - geoCenter;
     }
+
+private:
+    QtMapView* m_pthis;
 };
 
 QtMapView::QtMapView(QWidget *parent):QWidget(parent)
 {
-    m_Impl = new Impl();
+    m_Impl = new Impl(this);
+    setMouseTracking(true);
 }
 
 QtMapView::~QtMapView()
@@ -152,7 +210,6 @@ void QtMapView::setMap(QString geoJsonFile)
     }
     QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
     m_Impl->m_nodes = QGeoJson::importGeoJson(doc);
-    qDebug() << m_Impl->m_nodes;
     update();
 }
 
@@ -194,6 +251,67 @@ void QtMapView::setFitScaleEnabled(bool enable)
 {
     m_Impl->m_adjust_scale_enable = enable;
     update();
+}
+
+QPointF QtMapView::convertToViewPos(QPointF geo)
+{
+    /// trans + (geo.x) * scale  = viewX
+    /// trans + (lant_move - geo.y) * scale  = viewY
+    ///
+    ///
+    qreal x = getAbsShift().x() + geo.x() * getAbsScale();
+    qreal y = getAbsShift().y() + ( lant_move - geo.y() ) * getAbsScale();
+    return QPointF(x,y);
+}
+
+QPointF QtMapView::convertToGeoPos(QPointF p)
+{
+    /// trans + (geo.x) * scale  = viewX
+    /// trans + (lant_move - geo.y) * scale  = viewY
+    ///
+    qreal geox = (p.x() - getAbsShift().x()) / getAbsScale();
+    qreal geoy = lant_move - (p.y() - getAbsShift().y()) / getAbsScale();
+    return QPointF(geox,geoy);
+}
+
+void QtMapView::addNode(QtMapView::Node node)
+{
+    if(contains(node.view)){
+        qWarning() << QStringLiteral("设备的UI以存在，不再添加");
+        return;
+    }
+    if(node.view == NULL){
+        qWarning() << QStringLiteral("设备的UI是空，不再添加");
+        return;
+    }
+    m_Impl->m_viewnodes.insert(node.view,node);
+    node.view->setParent(this);
+    update();
+}
+
+void QtMapView::addNode(QWidget *node,QPointF geoPos)
+{
+    Node n;
+    n.view = node;
+    n.pos = geoPos;
+    addNode(n);
+}
+
+void QtMapView::removeNode(QWidget *nodeView)
+{
+    nodeView->deleteLater();
+    m_Impl->m_viewnodes.remove(nodeView);
+    update();
+}
+
+bool QtMapView::contains(QWidget *nodeView)
+{
+    return m_Impl->m_viewnodes.contains(nodeView);
+}
+
+QtMapView::Node QtMapView::getNode(QWidget *nodeView)
+{
+    return m_Impl->m_viewnodes.value(nodeView);
 }
 
 qreal QtMapView::getFitScale()
@@ -306,6 +424,8 @@ QPointF QtMapView::getAbsShift()
 
 void QtMapView::paintEvent(QPaintEvent *event)
 {
+    event->accept();
+
     QPainter p(this);
     /// 背景
     p.save();
@@ -313,17 +433,28 @@ void QtMapView::paintEvent(QPaintEvent *event)
     p.drawRect(rect());
     p.restore();
 
-    p.translate(getAbsShift());
-    qreal absScale = getAbsScale();
-    p.scale(absScale,absScale);
-
+    /// 地图
+    p.save();
     /// 国、省线
     QPen pen = QPen(Qt::white);
-    pen.setWidthF(1/absScale);
+    pen.setWidthF(1);
     p.setPen(pen);
     m_Impl->drawGeoJson(p,m_Impl->m_nodes);
+    p.restore();
 
-    event->accept();
+    m_Impl->layoutNodePos();
+
+    /// 光标位置
+    p.save();
+    QRect textBg = QRect(0,height()-26,220,20);
+    p.setBrush(QBrush(QColor(0xD7,0xD7,0xD7,100)));
+    p.drawRect(textBg);
+    p.setPen(QPen(Qt::white));
+    QPointF geoInfo = convertToGeoPos(m_Impl->m_mousCurrentPos);
+    QString posTxt = QString("%1,%2").arg(QString::number(geoInfo.x(),'f',6)).arg(QString::number(geoInfo.y(),'f',6));
+    p.drawText(textBg,  Qt::AlignCenter, posTxt);
+    p.restore();
+
 }
 
 void QtMapView::mousePressEvent(QMouseEvent *event)
@@ -341,12 +472,14 @@ void QtMapView::mouseReleaseEvent(QMouseEvent *event)
 
 void QtMapView::mouseMoveEvent(QMouseEvent *event)
 {
+    event->accept();
+    m_Impl->m_mousCurrentPos = event->pos();
     if(m_Impl->m_mouseDragEnabled && m_Impl->m_draging){
         QPointF now = event->pos();
         m_Impl->m_shift += (now - m_Impl->m_mouseLastPos);
         m_Impl->m_mouseLastPos = now;
-        update();
     }
+    update();
 }
 
 void QtMapView::wheelEvent(QWheelEvent *event)
