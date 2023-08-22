@@ -8,6 +8,7 @@
 #include <QGeoPolygon>
 #include <QMouseEvent>
 #include <QList>
+#include <QLabel>
 
 static const qreal lant_move = 60;
 class QtMapView::Impl{
@@ -25,6 +26,7 @@ public:
 
     /// 元素信息
     QMap<QWidget*,QtMapView::Node> m_viewnodes;
+    QLabel* m_anchor_info;
 
 public:
     Qt::Alignment m_align = Qt::AlignCenter;
@@ -41,6 +43,9 @@ public:
     qreal m_min_abs_scale = -1;
 
     Impl(QtMapView* pthis):m_pthis(pthis){
+        m_anchor_info = new QLabel(pthis);
+        m_anchor_info->setStyleSheet("background-color:rgba(215,215,215,100); color:white");
+        m_anchor_info->setAlignment(Qt::AlignCenter);
     }
 
     GeoRect getViewGeoRect() const{
@@ -64,6 +69,13 @@ public:
                 ui->move(geoTrasToShow(m_viewnodes[k].pos).toPoint() - centerMove);
             }
         }
+
+        QRect textBg = QRect(0,m_pthis->height()-26,220,20);
+        QPointF geoInfo = m_pthis->convertToGeoPos(m_mousCurrentPos);
+        QString posTxt = QString("%1,%2").arg(QString::number(geoInfo.x(),'f',6)).arg(QString::number(geoInfo.y(),'f',6));
+        m_anchor_info->setText(posTxt);
+        m_anchor_info->setGeometry(textBg);
+        m_anchor_info->raise();
     }
 
     QPointF geoPos2Point(QGeoCoordinate c) const{
@@ -314,6 +326,11 @@ QtMapView::Node QtMapView::getNode(QWidget *nodeView)
     return m_Impl->m_viewnodes.value(nodeView);
 }
 
+QLabel *QtMapView::getAnchorLable()
+{
+    return m_Impl->m_anchor_info;
+}
+
 qreal QtMapView::getFitScale()
 {
     qreal fit_scale = 1.0;
@@ -444,16 +461,16 @@ void QtMapView::paintEvent(QPaintEvent *event)
 
     m_Impl->layoutNodePos();
 
-    /// 光标位置
-    p.save();
-    QRect textBg = QRect(0,height()-26,220,20);
-    p.setBrush(QBrush(QColor(0xD7,0xD7,0xD7,100)));
-    p.drawRect(textBg);
-    p.setPen(QPen(Qt::white));
-    QPointF geoInfo = convertToGeoPos(m_Impl->m_mousCurrentPos);
-    QString posTxt = QString("%1,%2").arg(QString::number(geoInfo.x(),'f',6)).arg(QString::number(geoInfo.y(),'f',6));
-    p.drawText(textBg,  Qt::AlignCenter, posTxt);
-    p.restore();
+//    /// 光标位置
+//    p.save();
+//    QRect textBg = QRect(0,height()-26,220,20);
+//    p.setBrush(QBrush(QColor(0xD7,0xD7,0xD7,100)));
+//    p.drawRect(textBg);
+//    p.setPen(QPen(Qt::white));
+//    QPointF geoInfo = convertToGeoPos(m_Impl->m_mousCurrentPos);
+//    QString posTxt = QString("%1,%2").arg(QString::number(geoInfo.x(),'f',6)).arg(QString::number(geoInfo.y(),'f',6));
+//    p.drawText(textBg,  Qt::AlignCenter, posTxt);
+//    p.restore();
 
 }
 

@@ -4,6 +4,7 @@
 #include <QVariantMap>
 #include <QWidget>
 #include <QtMapView/QtMapViewConfig.hpp>
+#include <QLabel>
 
 /**
  * @brief The QtMapView class
@@ -246,6 +247,13 @@ public:
      * @return 如果不存在将返回默认item，view是NULL
      */
     Node getNode(QWidget* nodeView);
+
+    /**
+     * @brief getAnchorLable
+     * 获取左下角经纬度信息
+     * @return
+     */
+    QLabel* getAnchorLable();
 protected:
     virtual void paintEvent(QPaintEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
