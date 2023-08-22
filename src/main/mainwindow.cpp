@@ -8,6 +8,7 @@
 #include <Utiles/version.hpp>
 #include <QtMapView/QtMapView.hpp>
 #include <QtMapView/QtMapGifItem.hpp>
+#include <QtMapView/QtMapLineItem.hpp>
 #include <QLabel>
 #include <QMovie>
 #include <QRandomGenerator>
@@ -43,6 +44,10 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i=0; i<50; i++){
         map->addNode(new QtMapGifItem("images/doctran-loading.gif","Load",QSize(20,20)),getRandomPoint(map->geoViewRect()));
     }
+    for(int i=0; i<1; i++){
+    }
+    map->addNode(new QtMapLineItem(QPointF(86.78,41.253),QPointF(119.80444,29.346)));
+    map->addNode(new QtMapLineItem(QPointF(119.80444,28.346),QPointF(86.78,39.253)));
 }
 
 MainWindow::~MainWindow()

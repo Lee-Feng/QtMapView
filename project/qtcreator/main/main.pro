@@ -119,4 +119,3 @@ message($$CONFIG)
 
 #项目源代码
 include($$PTVAR_SRC/main/src.pri)
-RESOURCES += $$PTVAR_SRC/res/resource.qrc
