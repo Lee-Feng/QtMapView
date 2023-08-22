@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <Utiles/version.hpp>
 #include <QtMapView/QtMapView.hpp>
+#include <QtMapView/QtMapGifItem.hpp>
 #include <QLabel>
 #include <QMovie>
 #include <QRandomGenerator>
@@ -36,26 +37,11 @@ MainWindow::MainWindow(QWidget *parent) :
     map->show();
     setCentralWidget(map);
 
-
     for(int i=0; i<50; i++){
-        QLabel* lable = new QLabel(map);
-        QMovie* m = new QMovie("images/animation.gif");
-        m->start();
-        lable->setMovie(m);
-        lable->setGeometry(0,0,50,20);
-        lable->setScaledContents(true);
-        ///
-        map->addNode(lable,getRandomPoint(map->geoViewRect()));
+        map->addNode(new QtMapGifItem("images/animation.gif","",QSize(50,20)),getRandomPoint(map->geoViewRect()));
     }
     for(int i=0; i<50; i++){
-        QLabel* lable = new QLabel(map);
-        QMovie* m = new QMovie("images/doctran-loading.gif");
-        m->start();
-        lable->setMovie(m);
-        lable->setGeometry(0,0,20,20);
-        lable->setScaledContents(true);
-        ///
-        map->addNode(lable,getRandomPoint(map->geoViewRect()));
+        map->addNode(new QtMapGifItem("images/doctran-loading.gif","",QSize(20,20)),getRandomPoint(map->geoViewRect()));
     }
 }
 

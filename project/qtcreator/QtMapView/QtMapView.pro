@@ -116,5 +116,9 @@ include (../pub_pris/libs_inc.pri)
 #项目源代码
 
 HEADERS += $$PTVAR_INC/QtMapView/QtMapViewConfig.hpp
+HEADERS += $$PTVAR_INC/QtMapView/QtMapItem.hpp
+SOURCES += $$PTVAR_SRC/QtMapView/QtMapItem.cpp
 HEADERS += $$PTVAR_INC/QtMapView/QtMapView.hpp
 SOURCES += $$PTVAR_SRC/QtMapView/QtMapView.cpp
+
+HEADERS += $$PTVAR_INC/QtMapView/QtMapGifItem.hpp

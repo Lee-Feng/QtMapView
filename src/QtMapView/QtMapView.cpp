@@ -1,4 +1,5 @@
 ﻿#include <QtMapView/QtMapView.hpp>
+#include <QtMapView/QtMapItem.hpp>
 #include <QDebug>
 #include <QFile>
 #include <QPainter>
@@ -25,7 +26,7 @@ public:
     QPointF m_mousCurrentPos;
 
     /// 元素信息
-    QMap<QWidget*,QtMapView::Node> m_viewnodes;
+    QSet<QtMapItem*> m_viewnodes;
     QLabel* m_anchor_info;
 
 public:
@@ -62,14 +63,11 @@ public:
     }
 
     void layoutNodePos(){
-        foreach(auto k,m_viewnodes.keys()){
-            QWidget* ui = m_viewnodes[k].view;
-            if(ui != NULL){
-                QPoint centerMove = QPoint(ui->geometry().width()/2, ui->geometry().height()/2);
-                ui->move(geoTrasToShow(m_viewnodes[k].pos).toPoint() - centerMove);
+        foreach(auto k,m_viewnodes){
+            if(k != NULL){
+                k->relayout();
             }
         }
-
         QRect textBg = QRect(0,m_pthis->height()-26,220,20);
         QPointF geoInfo = m_pthis->convertToGeoPos(m_mousCurrentPos);
         QString posTxt = QString("%1,%2").arg(QString::number(geoInfo.x(),'f',6)).arg(QString::number(geoInfo.y(),'f',6));
@@ -124,8 +122,8 @@ public:
                 tl = geoMove(tl,QPointF(1,1));
                 dr = geoMove(dr,QPointF(1,1));
             } else if(name.startsWith(QStringLiteral("黑龙江"))){
-                tl = geoMove(tl,QPointF(0,3));
-                dr = geoMove(dr,QPointF(0,3));
+                tl = geoMove(tl,QPointF(0,-1));
+                dr = geoMove(dr,QPointF(0,-1));
             }
             QRect drawRect = QRect(geoPos2Point(tl).toPoint(),geoPos2Point(dr).toPoint());
             p.drawText(drawRect,Qt::AlignCenter, properties["name"].toString());
@@ -286,44 +284,39 @@ QPointF QtMapView::convertToGeoPos(QPointF p)
     return QPointF(geox,geoy);
 }
 
-void QtMapView::addNode(QtMapView::Node node)
+void QtMapView::addNode(QtMapItem *node)
 {
-    if(contains(node.view)){
+    if(contains(node)){
         qWarning() << QStringLiteral("设备的UI以存在，不再添加");
         return;
     }
-    if(node.view == NULL){
+    if(node == NULL){
         qWarning() << QStringLiteral("设备的UI是空，不再添加");
         return;
     }
-    m_Impl->m_viewnodes.insert(node.view,node);
-    node.view->setParent(this);
+    m_Impl->m_viewnodes.insert(node);
+    node->attached(this);
     update();
 }
 
-void QtMapView::addNode(QWidget *node,QPointF geoPos)
+void QtMapView::addNode(QtMapItem *node,QPointF geoPos)
 {
-    Node n;
-    n.view = node;
-    n.pos = geoPos;
-    addNode(n);
+    addNode(node);
+    if(node){
+        node->setGeoPos(geoPos);
+    }
 }
 
-void QtMapView::removeNode(QWidget *nodeView)
+void QtMapView::removeNode(QtMapItem *nodeView)
 {
     nodeView->deleteLater();
     m_Impl->m_viewnodes.remove(nodeView);
     update();
 }
 
-bool QtMapView::contains(QWidget *nodeView)
+bool QtMapView::contains(QtMapItem *nodeView)
 {
     return m_Impl->m_viewnodes.contains(nodeView);
-}
-
-QtMapView::Node QtMapView::getNode(QWidget *nodeView)
-{
-    return m_Impl->m_viewnodes.value(nodeView);
 }
 
 QLabel *QtMapView::getAnchorLable()

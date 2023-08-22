@@ -6,9 +6,7 @@
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
-#include <Utiles/CrashHandler.hpp>
 #include <Utiles/logger.h>
-#include <AsyncInvoker/AsyncInvoker.hpp>
 #include "mainwindow.h"
 #include <QMessageBox>
 #include <QTextCodec>
@@ -33,7 +31,6 @@ void passInit(){
     p.append('e');
     p.append('s');
     p.append('t');
-    ui::registerLicense(p);
 }
 
 /**
@@ -41,19 +38,6 @@ void passInit(){
  */
 int main(int argc,char* argv[])
 {
-    bool crash_hanlder = true;
-    for(int i=1; i<argc; i++){
-        if(strcmp(argv[i],"nohandler") == 0 ||
-                strcmp(argv[i],"-nohandler") == 0 ||
-                strcmp(argv[i],"nocrashhandler") == 0 ||
-                strcmp(argv[i],"-nocrashhandler") == 0){
-            crash_hanlder = false;
-        }
-    }
-    if(crash_hanlder){
-        utiles::InstallFaultHandler();
-    }
-
     QApplication app(argc,argv);
     logger::Logger log("test");
     log.start("log");

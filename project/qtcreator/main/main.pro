@@ -50,7 +50,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 #如果项目依赖了非自己代码编译的库那么库可以放在$PT/3rd目录。然后通过LIB_3RD_DIRS指定。
 #如果项目依赖了非自己代码编译的库那么库可以放在$PT/../lib目录。然后通过LIB_DIRS指定。
 #
-LIB_3RD_DIRS = AsyncInvoker
+LIB_3RD_DIRS =
 #LIB_SRC_DIRS =
 LIB_DIRS =
 
@@ -92,7 +92,7 @@ include (../pub_pris/build_qtapp.pri)
 #                                VAR_3RDLIBS += test3rdlib_DD4
 #                          }
 # 设置完依赖的库变量之后，包含libs_inc.pri文件include (../pub_pris/libs_inc.pri)
-VAR_DEPLIBS = AsyncInvoker QtMapView
+VAR_DEPLIBS = QtMapView
 VAR_3RDLIBS = #avcodec avformat avfilter avdevice avutil postproc swresample swscale
 VAR_3RDLIBS_DEBUG_END_WITH_D =
 
