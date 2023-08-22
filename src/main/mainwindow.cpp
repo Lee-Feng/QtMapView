@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
         map->addNode(new QtMapGifItem("images/animation.gif","",QSize(50,20)),getRandomPoint(map->geoViewRect()));
     }
     for(int i=0; i<50; i++){
-        map->addNode(new QtMapGifItem("images/doctran-loading.gif","",QSize(20,20)),getRandomPoint(map->geoViewRect()));
+        map->addNode(new QtMapGifItem("images/doctran-loading.gif","Load",QSize(20,20)),getRandomPoint(map->geoViewRect()));
     }
 }
 

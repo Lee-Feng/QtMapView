@@ -17,7 +17,7 @@ public:
         lable->setMovie(m);
         lable->setGeometry(0,0,s.width(),s.height());
         lable->setScaledContents(true);
-        setName(name);
+        setName(name,"color:white");
         setView(lable);
     }
     virtual ~QtMapGifItem(){

@@ -4,15 +4,11 @@
 QtMapItem::QtMapItem(QWidget *view):QObject(NULL)
 {
     m_view = view;
-    m_name = new QLabel(view);
-    m_name->setAlignment(Qt::AlignCenter);
 }
 
 QtMapItem::QtMapItem():QObject(NULL)
 {
-    m_view = NULL;
-    m_name = new QLabel(NULL);
-    m_name->setAlignment(Qt::AlignCenter);
+    m_view = nullptr;
 }
 
 QtMapItem::~QtMapItem()
@@ -28,9 +24,11 @@ void QtMapItem::attached(QtMapView *map)
 void QtMapItem::setView(QWidget *item)
 {
     m_view = item;
-    m_name->setParent(item);
     QtMapView* mp = map();
     if(mp){
+        if(m_name != nullptr){
+            m_name->setParent(mp);
+        }
         m_view->setParent(mp);
     }
 }
@@ -61,17 +59,33 @@ QPointF QtMapItem::getGeoPos()
 void QtMapItem::relayout()
 {
     QtMapView* m = map();
-    if(m != nullptr && m_view != nullptr){
+    if(m == nullptr){
+        return;
+    }
+    if(m_view != nullptr){
         QPoint centerMove = QPoint(m_view->width()/2, m_view->height()/2);
-        m_view->move(m->convertToViewPos(m_geopos).toPoint() - centerMove);
-        m_name->setGeometry(0,m_view->height(),m_view->width(),20);
+        QPoint viewPos = QPoint(m->convertToViewPos(m_geopos).toPoint() - centerMove);
+        m_view->move(viewPos);
+    }
+    if(m_name != nullptr){
+        QPoint centerMove = QPoint(m_name->width()/2, m_name->height()/2);
+        if(m_view != nullptr){
+            centerMove += QPoint(0, m_view->height());
+        }
+        QPoint viewPos = QPoint(m->convertToViewPos(m_geopos).toPoint() - centerMove);
+        m_name->move(viewPos);
     }
 }
 
-void QtMapItem::setName(QString name)
+void QtMapItem::setName(QString name, QString qss)
 {
-    if(m_name->text() != name){
+    if(m_name == nullptr){
+        m_name = new QLabel(map());
+        m_name->setAlignment(Qt::AlignCenter);
+    }
+    if(m_name != nullptr && m_name->text() != name){
         m_name->setText(name);
+        m_name->setStyleSheet(qss);
         if(map()){
             relayout();
         }
@@ -80,5 +94,10 @@ void QtMapItem::setName(QString name)
 
 QString QtMapItem::name()
 {
-    return m_name->text();
+    return m_name != nullptr ? m_name->text() : "";
+}
+
+QLabel *QtMapItem::getNameLable()
+{
+    return m_name;
 }

@@ -7,7 +7,9 @@
 class QtMapView;
 /**
  * @brief The QtMapItems class
- *地图中的元素，parent就是QtMapView
+ * 地图中的元素，parent就是QtMapView
+ * QtMapItem中附带的view的parent是QtMapView
+ * QtMapItem中附带的lable的parent是QtMapView
  */
 class LF_QMAPVIEW_DECL QtMapItem : public QObject
 {
@@ -68,7 +70,7 @@ public:
      * 修改名字
      * @param name
      */
-    virtual void setName(QString name);
+    virtual void setName(QString name,QString qss = "");
 
     /**
      * @brief name
