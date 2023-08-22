@@ -46,11 +46,15 @@ static void drawArc(QPainter *p, const QPointF& p1, const QPointF& p2, double ra
 void StarLine::paintEvent(QPaintEvent *event){
     event->accept();
     QPainter p(this);
+    qreal len = 20.0 / qMax(width(),height());
     QLinearGradient gradient;
     gradient.setStart(m_start);
-    gradient.setColorAt(0,Qt::red);
-    gradient.setColorAt(0.5,Qt::yellow);
-    gradient.setColorAt(1,Qt::green);
+    gradient.setColorAt(0,Qt::blue);
+    gradient.setColorAt(0.5,Qt::blue);
+    gradient.setColorAt(0.5 + 0.0001,Qt::green);
+    gradient.setColorAt(0.5+len,Qt::green);
+    gradient.setColorAt(0.5+len+ 0.0001,Qt::blue);
+    gradient.setColorAt(1,Qt::blue);
     gradient.setFinalStop(m_end);
     p.setPen(QPen(QBrush(gradient),m_width));
     /// 画直线
