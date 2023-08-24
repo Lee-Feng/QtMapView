@@ -506,8 +506,9 @@ void QtMapView::wheelEvent(QWheelEvent *event)
         } else {
             newScale *= 0.9;
         }
+        QPointF moveGeo = convertToGeoPos(event->pos());
         m_Impl->m_scale = newScale;
-        update();
+        moveToGeoPos(moveGeo,event->pos());
     }
 }
 

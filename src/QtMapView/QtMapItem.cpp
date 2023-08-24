@@ -15,9 +15,11 @@ QtMapItem::~QtMapItem()
 {
     if(m_view != nullptr){
         delete m_view;
+        m_view = nullptr;
     }
     if(m_name != nullptr){
         delete m_name;
+        m_name = nullptr;
     }
 }
 
