@@ -5,6 +5,7 @@
 #include <QDebug>
 
 StarLine::StarLine(QWidget *p):QWidget(p){
+    setAttribute(Qt::WA_TransparentForMouseEvents);
     run(0);
 }
 
@@ -156,6 +157,7 @@ void QtMapLineItem::relayout(){
     if(m == nullptr){
         return;
     }
+    m_line->setVisible(true);
     m_line->setLine(m->convertToViewPos(m_geoStart).toPoint(),m->convertToViewPos(m_geoEnd).toPoint());
 }
 

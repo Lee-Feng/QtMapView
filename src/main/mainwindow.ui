@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>369</width>
-    <height>272</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>demo Powered by 474609810@qq.com</string>
+   <string>地图测试 demo Powered by 474609810@qq.com</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout"/>
@@ -21,11 +21,59 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>369</width>
+     <width>800</width>
      <height>23</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuTest">
+    <property name="title">
+     <string>测试移动</string>
+    </property>
+    <addaction name="actionmoveToP1"/>
+    <addaction name="actionmoveToP2"/>
+   </widget>
+   <widget class="QMenu" name="menuTestAdd">
+    <property name="title">
+     <string>测试Node</string>
+    </property>
+    <addaction name="actionremoveOneNode"/>
+    <addaction name="actionaddOneNode"/>
+    <addaction name="actionradmonAdd"/>
+    <addaction name="actionremoveAll"/>
+   </widget>
+   <addaction name="menuTest"/>
+   <addaction name="menuTestAdd"/>
   </widget>
+  <action name="actionmoveToP1">
+   <property name="text">
+    <string>移动到P1</string>
+   </property>
+  </action>
+  <action name="actionmoveToP2">
+   <property name="text">
+    <string>移动到P2</string>
+   </property>
+  </action>
+  <action name="actionremoveOneNode">
+   <property name="text">
+    <string>移除一个Node</string>
+   </property>
+  </action>
+  <action name="actionaddOneNode">
+   <property name="text">
+    <string>添加一个Node</string>
+   </property>
+  </action>
+  <action name="actionradmonAdd">
+   <property name="text">
+    <string>重新生成Node</string>
+   </property>
+  </action>
+  <action name="actionremoveAll">
+   <property name="text">
+    <string>清空Node</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

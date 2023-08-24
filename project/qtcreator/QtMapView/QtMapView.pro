@@ -121,6 +121,7 @@ SOURCES += $$PTVAR_SRC/QtMapView/QtMapItem.cpp
 HEADERS += $$PTVAR_INC/QtMapView/QtMapView.hpp
 SOURCES += $$PTVAR_SRC/QtMapView/QtMapView.cpp
 
+HEADERS += $$PTVAR_INC/QtMapView/QtMapImageItem.hpp
 HEADERS += $$PTVAR_INC/QtMapView/QtMapGifItem.hpp
 HEADERS += $$PTVAR_INC/QtMapView/QtMapLineItem.hpp
 SOURCES += $$PTVAR_SRC/QtMapView/QtMapLineItem.cpp

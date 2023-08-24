@@ -167,12 +167,6 @@ public:
     qreal getAbsScale();
 
     /**
-     * @brief getAbsTransMove
-     * @return
-     */
-    QPointF getAbsTransMove();
-
-    /**
      * @brief getAlignShift
      * 获取自动对齐的修正位置
      * @return
@@ -193,6 +187,20 @@ public:
      */
     virtual void setFitScaleEnabled(bool enable);
 
+    /**
+     * @brief moveToGeoPos
+     * 将geo显示到画面中心
+     * @param geo
+     */
+    virtual void moveToGeoPos(QPointF geo);
+
+    /**
+     * @brief moveToGeoPos
+     * 将geo显示到画面指定位置
+     * @param geo
+     * @param uiPos
+     */
+    virtual void moveToGeoPos(QPointF geo,QPointF uiPos);
 public:
     /**
      * @brief convertToViewPos
@@ -238,6 +246,17 @@ public:
      * @return
      */
     QLabel* getAnchorLable();
+
+    /**
+     * @brief nodeItems
+     * @return
+     */
+    QSet<QtMapItem*> nodeItems();
+
+    /**
+     * @brief clearNodeItems
+     */
+    void clearNodeItems();
 protected:
     virtual void paintEvent(QPaintEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);

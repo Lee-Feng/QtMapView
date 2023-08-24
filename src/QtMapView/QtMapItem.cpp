@@ -13,6 +13,12 @@ QtMapItem::QtMapItem():QObject(NULL)
 
 QtMapItem::~QtMapItem()
 {
+    if(m_view != nullptr){
+        delete m_view;
+    }
+    if(m_name != nullptr){
+        delete m_name;
+    }
 }
 
 void QtMapItem::attached(QtMapView *map)
@@ -66,6 +72,7 @@ void QtMapItem::relayout()
         QPoint centerMove = QPoint(m_view->width()/2, m_view->height()/2);
         QPoint viewPos = QPoint(m->convertToViewPos(m_geopos).toPoint() - centerMove);
         m_view->move(viewPos);
+        m_view->show();
     }
     if(m_name != nullptr){
         QPoint centerMove = QPoint(m_name->width()/2, m_name->height()/2);
@@ -74,6 +81,7 @@ void QtMapItem::relayout()
         }
         QPoint viewPos = QPoint(m->convertToViewPos(m_geopos).toPoint() - centerMove);
         m_name->move(viewPos);
+        m_name->show();
     }
 }
 

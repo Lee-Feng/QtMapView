@@ -11,7 +11,6 @@
 #include <QList>
 #include <QLabel>
 
-static const qreal lant_move = 60;
 class QtMapView::Impl{
 public:
     QString m_file;
@@ -53,11 +52,6 @@ public:
         return m_geoRect;
     }
 
-    QPointF geoTrasToShow(QPointF geo) const{
-        //return QPointF(geo.x(),lant_move-geo.y());
-        return m_pthis->convertToViewPos(geo);
-    }
-
     QGeoCoordinate geoMove(const QGeoCoordinate& p,QPointF move){
         return QGeoCoordinate(p.latitude() + move.y(), p.longitude() + move.x());
     }
@@ -77,7 +71,7 @@ public:
     }
 
     QPointF geoPos2Point(QGeoCoordinate c) const{
-        return geoTrasToShow(QPointF(c.longitude(),c.latitude()));
+        return m_pthis->convertToViewPos(QPointF(c.longitude(),c.latitude()));
     }
     void drawGeoPoint(QPainter& p,QGeoCircle c){
         p.drawEllipse(geoPos2Point(c.center()),c.radius(),c.radius());
@@ -106,6 +100,7 @@ public:
             QGeoRectangle rect = c.boundingGeoRectangle();
             QGeoCoordinate tl = rect.topLeft();
             QGeoCoordinate dr = rect.bottomRight();
+            ///TODO: 地图文字应该通过外部配置进来，这样位置的排布都可以更好控制
             if(name.startsWith(QStringLiteral("内蒙古"))){
                 tl = geoMove(tl,QPointF(0,-3));
                 dr = geoMove(dr,QPointF(0,-3));
@@ -263,31 +258,44 @@ void QtMapView::setFitScaleEnabled(bool enable)
     update();
 }
 
+void QtMapView::moveToGeoPos(QPointF geo)
+{
+    moveToGeoPos(geo,QPoint(width()/2,height()/2));
+}
+
+void QtMapView::moveToGeoPos(QPointF geo, QPointF uiPos)
+{
+    QPointF itemUIPos = convertToViewPos(geo);
+    QPointF d = uiPos - itemUIPos; /// 目标偏移
+    m_Impl->m_shift += d;
+    update();
+}
+
 QPointF QtMapView::convertToViewPos(QPointF geo)
 {
     /// trans + (geo.x) * scale  = viewX
-    /// trans + (lant_move - geo.y) * scale  = viewY
+    /// trans + (0 - geo.y) * scale  = viewY
     ///
     ///
     qreal x = getAbsShift().x() + geo.x() * getAbsScale();
-    qreal y = getAbsShift().y() + ( lant_move - geo.y() ) * getAbsScale();
+    qreal y = getAbsShift().y() + ( - geo.y() ) * getAbsScale();
     return QPointF(x,y);
 }
 
 QPointF QtMapView::convertToGeoPos(QPointF p)
 {
     /// trans + (geo.x) * scale  = viewX
-    /// trans + (lant_move - geo.y) * scale  = viewY
+    /// trans + (0 - geo.y) * scale  = viewY
     ///
     qreal geox = (p.x() - getAbsShift().x()) / getAbsScale();
-    qreal geoy = lant_move - (p.y() - getAbsShift().y()) / getAbsScale();
+    qreal geoy = 0 - (p.y() - getAbsShift().y()) / getAbsScale();
     return QPointF(geox,geoy);
 }
 
 void QtMapView::addNode(QtMapItem *node)
 {
     if(contains(node)){
-        qWarning() << QStringLiteral("设备的UI以存在，不再添加");
+        qWarning() << QStringLiteral("设备的UI已存在，不再添加");
         return;
     }
     if(node == NULL){
@@ -322,6 +330,19 @@ bool QtMapView::contains(QtMapItem *nodeView)
 QLabel *QtMapView::getAnchorLable()
 {
     return m_Impl->m_anchor_info;
+}
+
+QSet<QtMapItem *> QtMapView::nodeItems()
+{
+    return m_Impl->m_viewnodes;
+}
+
+void QtMapView::clearNodeItems()
+{
+    foreach(auto p, m_Impl->m_viewnodes){
+        p->deleteLater();
+    }
+    m_Impl->m_viewnodes.clear();
 }
 
 qreal QtMapView::getFitScale()
@@ -383,11 +404,6 @@ qreal QtMapView::getAbsScale()
         scale = qMin(scale,m_Impl->m_max_abs_scale);
     }
     return scale;
-}
-
-QPointF QtMapView::getAbsTransMove()
-{
-    return m_Impl->m_shift + getAlignShift();
 }
 
 QPointF QtMapView::getAlignShift()
@@ -453,18 +469,6 @@ void QtMapView::paintEvent(QPaintEvent *event)
     p.restore();
 
     m_Impl->layoutNodePos();
-
-//    /// 光标位置
-//    p.save();
-//    QRect textBg = QRect(0,height()-26,220,20);
-//    p.setBrush(QBrush(QColor(0xD7,0xD7,0xD7,100)));
-//    p.drawRect(textBg);
-//    p.setPen(QPen(Qt::white));
-//    QPointF geoInfo = convertToGeoPos(m_Impl->m_mousCurrentPos);
-//    QString posTxt = QString("%1,%2").arg(QString::number(geoInfo.x(),'f',6)).arg(QString::number(geoInfo.y(),'f',6));
-//    p.drawText(textBg,  Qt::AlignCenter, posTxt);
-//    p.restore();
-
 }
 
 void QtMapView::mousePressEvent(QMouseEvent *event)
@@ -496,11 +500,13 @@ void QtMapView::wheelEvent(QWheelEvent *event)
 {
     if(m_Impl->m_mouseScrollScaleEnabled){
         QPoint numDegrees = event->angleDelta() / 8;
+        qreal newScale = m_Impl->m_scale;
         if(numDegrees.y() > 0){
-            m_Impl->m_scale *= 1.1;
+            newScale *= 1.1;
         } else {
-            m_Impl->m_scale *= 0.9;
+            newScale *= 0.9;
         }
+        m_Impl->m_scale = newScale;
         update();
     }
 }

@@ -4,26 +4,26 @@
 #include <QMovie>
 
 /**
- * @brief The QtMapItems class
+ * @brief The QtMapImageItem class
  *地图中的元素，parent就是QtMapView
  */
-class QtMapGifItem : public QtMapItem
+class QtMapImageItem : public QtMapItem
 {
 public:
-    QtMapGifItem(QString file,QString name,QSize s = QSize()){
+    QtMapImageItem(QString file,QString name,QSize s = QSize()){
         QLabel* lable = new QLabel();
-        QMovie* m = new QMovie(file);
-        m->start();
-        lable->setMovie(m);
+        QPixmap img;
+        img.load(file);
+        lable->setPixmap(img);
         if(s.isValid()){
             lable->setGeometry(0,0,s.width(),s.height());
         } else {
-            lable->setGeometry(0,0,m->frameRect().width(),m->frameRect().height());
+            lable->setGeometry(0,0,img.width(),img.height());
         }
         lable->setScaledContents(true);
         setName(name,"color:white");
         setView(lable);
     }
-    virtual ~QtMapGifItem(){
+    virtual ~QtMapImageItem(){
     }
 };
