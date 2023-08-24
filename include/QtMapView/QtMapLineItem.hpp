@@ -5,6 +5,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QtMapView/QtMapViewConfig.hpp>
+#include <QElapsedTimer>
 
 /**
  * @brief The StarLine class
@@ -16,14 +17,61 @@ public:
     void setLine(QPoint start,QPoint end);
     void setWidth(int w);
     int getWidth();
+    /**
+     * @brief genLinearGradient
+     * 生成在指定百分出的颜色渐变
+     * @param percent
+     * @return
+     */
+    virtual QLinearGradient genLinearGradient(qreal percent);
+
+    /**
+     * @brief reset
+     * 设置动画进度
+     * @param percent
+     */
+    void reset(qreal percent);
+
+    /**
+     * @brief percent
+     * @return
+     */
+    qreal percent();
+
+    /**
+     * @brief run
+     * 开始动画
+     * @param percent
+     */
+    void run(qreal percent);
+
+    /**
+     * @brief stop
+     * 停止动画
+     */
+    void stop();
 protected:
     virtual void paintEvent(QPaintEvent *event);
 protected:
     void animationTick();
+    /**
+     * @brief genLinearGradient
+     * @param backgroundStart   背景开始颜色
+     * @param backgroundEnd     背景结束颜色
+     * @param targetStart       目标起始颜色
+     * @param targetEnd         目标结束颜色
+     * @param targetPos         目标位置,[0,1]
+     * @param targetLength      目标长度,[0,1]
+     * @return
+     */
+    virtual QLinearGradient genLinearGradient(QColor backgroundStart,QColor backgroundEnd,QColor targetStart,QColor targetEnd, qreal targetPos, qreal targetLength);
 protected:
     QPoint m_start;
     QPoint m_end;
     int m_width = 2;
+    qreal m_percent = 0;
+    QElapsedTimer m_time;
+    bool m_running = false;
 };
 
 /**
